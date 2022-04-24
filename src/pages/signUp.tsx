@@ -1,7 +1,7 @@
 import PageContainer from "../components/container";
 import React, { useState } from "react";
 import Form from "../components/form";
-import Input from "../components/input";
+import Input from "../components/formInput";
 import Logo from "../components/logo";
 import Title from "../components/title";
 import "../styles/reset.css";
