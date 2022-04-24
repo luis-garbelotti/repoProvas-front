@@ -1,5 +1,5 @@
 import PageContainer from "../components/container";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "../components/form";
 import Input from "../components/input";
 import Logo from "../components/logo";
@@ -9,17 +9,42 @@ import Footer from "../components/footer";
 import { Button, Box } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { signIn } from "../services/api";
+import Swal from "sweetalert2";
 
 function SignIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const { auth, login } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (auth) {
+            navigate('/disciplines');
+        }
+    }, []);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-
+        if (!password || !email) {
+            Swal.fire('Preencha todos os campos')
+            return;
+        }
         setIsLoading(true);
+        console.log({email, password});
+        const promise = signIn({ email, password });
+        promise.then((response) => {
+            login(response.data)
+            navigate('/disciplines');
+            setIsLoading(false);
+        }).catch(() => {
+            Swal.fire('Email ou senha incorreto(a). Tente novamente');
+            setIsLoading(false);
+            setPassword('');
+            setEmail('');
+        })
     }
 
     return (

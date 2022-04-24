@@ -9,6 +9,8 @@ import Footer from "../components/footer";
 import { Button, Box } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { signUp } from "../services/api";
 
 function SignUp() {
     const [email, setEmail] = useState("");
@@ -16,11 +18,40 @@ function SignUp() {
     const [isLoading, setIsLoading] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState(""); 
     const navigate = useNavigate();
+    
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
+        if(password !== confirmPassword) {
+            setIsLoading(false);
+            Swal.fire('Confirme a sua senha')
+            setConfirmPassword('');
+            return
+        }
+        if(!password || !email) {
+            Swal.fire('Preencha todos os campos')
+            return
+        }
+        
         setIsLoading(true);
+        const promise = signUp({password, email})
+        promise.then(() => {
+            Swal.fire('Cadastrado com sucesso')
+            navigate('/')
+        }).catch((error) => {
+            if(error.response.status === 409) {
+                Swal.fire('Email já cadastrado')
+            }
+            if (error.response.status === 422) {
+                Swal.fire('Confira todos os dados')
+            }
+            setIsLoading(false);
+            setConfirmPassword('');
+            setPassword('');
+            setEmail('');
+        })
+        
     }
 
     return (
@@ -78,6 +109,7 @@ function SignUp() {
                         }
                     </Footer>
                 </Form>
+                
             </PageContainer>
         </>
     )
