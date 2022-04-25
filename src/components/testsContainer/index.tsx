@@ -8,7 +8,9 @@ const styles = {
     width: "100%",
     height: "100%",
     padding: "15px",
-    backgroundColor: "blue"
+    borderRadius: "5px",
+    backgroundColor: "#3F61D7",
+    marginRight: "20px"
 }
 
 function TestsContainer({children}: Props) {

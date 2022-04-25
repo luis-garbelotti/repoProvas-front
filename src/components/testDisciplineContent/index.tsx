@@ -5,8 +5,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState } from "react";
-import { getDisciplinesByPeriod } from "../../services/api";
+import {  getDisciplinesByPeriod } from "../../services/api";
 import useAuth from "../../hooks/useAuth";
+import { DisciplineTypes } from "../disciplineTypes.ts/indext";
 
 interface Discipline {
     id: number,
@@ -19,11 +20,14 @@ function TestsDisciplinesContent(props: any) {
     const { auth } = useAuth()
     const [expanded, setExpanded] = useState<string | false>(false);
     const [periodDisciplines, setPeriodDisciplines] = useState<Discipline[]>()
+    
     const [expandedDiscipline, setExpandedDiscipline] = useState<string | false>(false);
+    
 
     const handlePeriodChange =
         (periodNumber: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? periodNumber : false);
+            
             const promise = getDisciplinesByPeriod(auth, parseInt(periodNumber));
 
             promise.then((response) => {
@@ -32,14 +36,14 @@ function TestsDisciplinesContent(props: any) {
         };
 
     const handleDisciplineChange =
-        (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-            setExpandedDiscipline(isExpanded ? panel : false);
+        (disciplineName: string, disciplineId: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+            setExpandedDiscipline(isExpanded ? disciplineName : false);
         };
     
-   
+    
 
     return (
-        <Box component="div">
+        <Box component="div" >
             {props.periods.map((period: any) => 
                 <Accordion key={period.id} expanded={expanded === period.number.toString()} onChange={handlePeriodChange(`${period.number.toString()}`)}>
                     <AccordionSummary
@@ -55,7 +59,7 @@ function TestsDisciplinesContent(props: any) {
                     <AccordionDetails>
                         {!periodDisciplines ? '' : periodDisciplines?.map((discipline) => 
                         
-                            <Accordion key={discipline.id} expanded={expandedDiscipline === discipline.name} onChange={handleDisciplineChange(discipline.name)}>
+                            <Accordion key={discipline.id} expanded={expandedDiscipline === discipline.name} onChange={handleDisciplineChange(discipline.name, discipline.id)}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1bh-content"
@@ -66,6 +70,10 @@ function TestsDisciplinesContent(props: any) {
                                     </Typography>
 
                                 </AccordionSummary>
+                                <AccordionDetails>
+                                    <DisciplineTypes disciplineId={discipline.id}/>
+
+                                </AccordionDetails>
                                 
                             </Accordion>
                         )}

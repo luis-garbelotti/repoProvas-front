@@ -38,3 +38,9 @@ export function getDisciplinesByPeriod(token: string, periodId: number) {
 
     return promise;
 }
+
+export function getTestsByType(token: string, disciplineId: number, categoryId: number) {
+    const promise = axios.get(`${BASE_URL}/disciplines/${disciplineId}/categories/${categoryId}`, createConfig(token));
+
+    return promise;
+}

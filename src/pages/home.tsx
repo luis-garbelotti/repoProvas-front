@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import ListSubheader from '@mui/material/ListSubheader';
 import List from '@mui/material/List';
-import { Container, Collapse, ListItemButton, ListItemText, ListItemIcon, } from '@mui/material';
+import { Container, Collapse, ListItemButton, ListItemText, ListItemIcon, Box } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -18,8 +18,8 @@ function Home() {
     const { auth } = useAuth();
     const [openDiscipline, setOpenDiscipline] = useState(false);
     const [openInstructor, setOpenInstructor] = useState(false);
-    const [testsData, setTestsData] = useState(false);
     const [periods, setPeriods] = useState({});
+    const [selectedIndex, setSelectedIndex] = useState(2);
     const [render, setRender] = useState("")
 
     function handleClickDiscipline() {
@@ -30,9 +30,10 @@ function Home() {
         setOpenInstructor(!openInstructor);
     };
 
-    function handleDisciplinePeriod(e: React.FormEvent) {
+    function handleDisciplinePeriod(e: React.FormEvent, index: number) {
         e.preventDefault();
 
+        setSelectedIndex(index);
         const promise = getPeriods(auth);
         promise.then((response) => {
             setPeriods(response.data)
@@ -42,9 +43,10 @@ function Home() {
         })
     }
     
-    function handleInstructorTestType(e: React.FormEvent) {
+    function handleInstructorTestType(e: React.FormEvent, index: number) {
         e.preventDefault();
         
+        setSelectedIndex(index);
         console.log('pesquisei por instrutor')
         setRender("instructor")
     }
@@ -54,7 +56,7 @@ function Home() {
         <>
             <Header/>
             <Search value="Pesquise por disciplina"/>
-            <Container sx={{width: "100vw", height: "100vh", display: "flex", padding: "0px !important"}}>
+            <Container sx={{ width: "100vw", height: "100%", display: "flex", padding: "0px !important"}}>
                 <List
                     sx={{
                         width: '100%', maxWidth: 250, bgcolor: 'background-paper', marginLeft: "10px" }}
@@ -65,21 +67,21 @@ function Home() {
                             Menu
                         </ListSubheader>
                     }
-                >
+                >  
                     <ListItemButton onClick={handleClickDiscipline} >
                         <ListItemIcon>
                             <MenuBookIcon sx={{ color: "#3F61D7"}} />
                         </ListItemIcon>
-                        <ListItemText primary="Disciplinas" />
+                        <ListItemText primary="Disciplinas"  />
                         {openDiscipline ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
-                    <Collapse in={openDiscipline} timeout="auto" unmountOnExit onClick={handleDisciplinePeriod}>
-                        <List component="div" disablePadding >
-                            <ListItemButton sx={{ pl: 4 }} >
+                    <Collapse in={openDiscipline} timeout="auto" unmountOnExit onClick={(e) => handleDisciplinePeriod(e, 0)}>
+                        <List component="div" disablePadding sx={{ backgroundColor: `${selectedIndex === 0 ? '#3F61D7' : ''}` }}>
+                            <ListItemButton sx={{ pl: 4}} selected={selectedIndex === 0} >
                                 <ListItemIcon>
-                                    <CalendarMonthIcon sx={{ color: "#3F61D7" }}/>
+                                    <CalendarMonthIcon sx={{ color: `${selectedIndex === 0 ? '#FFF' : '#3F61D7'}` }}/>
                                 </ListItemIcon>
-                                <ListItemText primary="Período" />
+                                <ListItemText sx={{ color: `${selectedIndex === 0 ? '#FFF' : '#000'}` }} primary="Período" />
                             </ListItemButton>
                         </List>
                     </Collapse>
@@ -91,24 +93,24 @@ function Home() {
                         <ListItemText primary="Instrutor" />
                         {openInstructor ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
-                    <Collapse in={openInstructor} timeout="auto" unmountOnExit onClick={handleInstructorTestType}>
-                        <List component="div" disablePadding >
-                            <ListItemButton sx={{ pl: 4 }} >
+                    <Collapse in={openInstructor} timeout="auto" unmountOnExit onClick={(e) => handleInstructorTestType(e, 1)}>
+                        <List component="div" disablePadding sx={{ backgroundColor: `${selectedIndex === 1 ? '#3F61D7' : ''}` }}>
+                            <ListItemButton sx={{ pl: 4 }} selected={selectedIndex === 1}>
                                 <ListItemIcon>
-                                    <CalendarMonthIcon sx={{ color: "#3F61D7" }} />
+                                    <CalendarMonthIcon sx={{ color: `${selectedIndex === 1 ? '#FFF' : '#3F61D7'}` }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Instrutor 1" />
+                                <ListItemText sx={{ color: `${selectedIndex === 1 ? '#FFF' : '#000'}` }} primary="Instrutor 1" />
                             </ListItemButton>
                         </List>
                     </Collapse>
                 </List>
-                <TestsContainer>
                     {render === "disciplines" ? 
+                <TestsContainer>
                         <TestsDisciplinesContent periods={periods}/>
+                </TestsContainer>
                         :
                         ''
                     }
-                </TestsContainer>
 
             </Container>
 
