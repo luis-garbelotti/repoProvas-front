@@ -44,3 +44,15 @@ export function getTestsByType(token: string, disciplineId: number, categoryId: 
 
     return promise;
 }
+
+export function getTeachers(token: string) {
+    const promise = axios.get(`${BASE_URL}/teachers`, createConfig(token));
+    
+    return promise;
+}
+
+export function getTestsByTeacherType(token: string, teacherId: number, categoryId: number) {
+    const promise = axios.get(`${BASE_URL}/teachers/${teacherId}/categories/${categoryId}`, createConfig(token));
+
+    return promise;
+}

@@ -1,17 +1,21 @@
 import { Header } from "../components/header"
 import { Search } from "../components/search"
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import ListSubheader from '@mui/material/ListSubheader';
 import List from '@mui/material/List';
-import { Container, Collapse, ListItemButton, ListItemText, ListItemIcon, Box } from '@mui/material';
+import { Container, Collapse, ListItemButton, ListItemText, ListItemIcon } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import GroupIcon from '@mui/icons-material/Group';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { TestsContainer } from "../components/testsContainer";
 import { TestsDisciplinesContent } from "../components/testDisciplineContent";
 import { getPeriods } from "../services/api";
 import useAuth from "../hooks/useAuth";
+import { getTeachers } from "../services/api";
+import { TeacherTestsTypes } from "../components/teachersTestsTypes";
 
 function Home() {
 
@@ -19,15 +23,24 @@ function Home() {
     const [openDiscipline, setOpenDiscipline] = useState(false);
     const [openInstructor, setOpenInstructor] = useState(false);
     const [periods, setPeriods] = useState({});
-    const [selectedIndex, setSelectedIndex] = useState(2);
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const [teacherId, setTeacherId] = useState<number >(0);
     const [render, setRender] = useState("")
+    const [lever, setLever] = useState(false)
+    const [teachers, setTeachers] = useState<any[]>([])
 
     function handleClickDiscipline() {
         setOpenDiscipline(!openDiscipline);
     };
 
-    function handleClickInstructor() {
+    function handleClickTeachers() {
         setOpenInstructor(!openInstructor);
+
+        const promise = getTeachers(auth);
+
+        promise.then((response) => {
+            setTeachers(response.data);
+        })
     };
 
     function handleDisciplinePeriod(e: React.FormEvent, index: number) {
@@ -47,8 +60,9 @@ function Home() {
         e.preventDefault();
         
         setSelectedIndex(index);
-        console.log('pesquisei por instrutor')
-        setRender("instructor")
+        setTeacherId(index);
+        setLever(!lever)
+        setRender("teacher")
     }
 
 
@@ -58,8 +72,7 @@ function Home() {
             <Search value="Pesquise por disciplina"/>
             <Container sx={{ width: "100vw", height: "100%", display: "flex", padding: "0px !important"}}>
                 <List
-                    sx={{
-                        width: '100%', maxWidth: 250, bgcolor: 'background-paper', marginLeft: "10px" }}
+                    sx={{ width: '100%', maxWidth: 250, bgcolor: 'background-paper', marginLeft: "10px" }}
                     component="nav"
                     aria-labelledby="nested-list-subheader"
                     subheader={
@@ -86,30 +99,36 @@ function Home() {
                         </List>
                     </Collapse>
 
-                    <ListItemButton onClick={handleClickInstructor} >
+                    <ListItemButton onClick={handleClickTeachers} >
                         <ListItemIcon>
-                            <MenuBookIcon sx={{ color: "#3F61D7" }} />
+                            <GroupIcon sx={{ color: "#3F61D7" }} />
                         </ListItemIcon>
-                        <ListItemText primary="Instrutor" />
+                        <ListItemText primary="Professores" />
                         {openInstructor ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
-                    <Collapse in={openInstructor} timeout="auto" unmountOnExit onClick={(e) => handleInstructorTestType(e, 1)}>
-                        <List component="div" disablePadding sx={{ backgroundColor: `${selectedIndex === 1 ? '#3F61D7' : ''}` }}>
-                            <ListItemButton sx={{ pl: 4 }} selected={selectedIndex === 1}>
-                                <ListItemIcon>
-                                    <CalendarMonthIcon sx={{ color: `${selectedIndex === 1 ? '#FFF' : '#3F61D7'}` }} />
-                                </ListItemIcon>
-                                <ListItemText sx={{ color: `${selectedIndex === 1 ? '#FFF' : '#000'}` }} primary="Instrutor 1" />
-                            </ListItemButton>
-                        </List>
+                    <Collapse in={openInstructor} timeout="auto" unmountOnExit >
+                        {teachers?.map((teacher) => 
+                            <List key={teacher.id} component="div"  disablePadding sx={{ backgroundColor: `${selectedIndex === teacher.id ? '#3F61D7' : ''}` }}>
+                                <ListItemButton sx={{ pl: 4 }} selected={selectedIndex === teacher.id} onClick={(e) => handleInstructorTestType(e, teacher.id)}>
+                                    <ListItemIcon>
+                                        <AccountBoxIcon sx={{ color: `${selectedIndex === teacher.id ? '#FFF' : '#3F61D7'}` }} />
+                                    </ListItemIcon>
+                                    <ListItemText sx={{ color: `${selectedIndex === teacher.id ? '#FFF' : '#000'}` }} primary={teacher.name} />
+                                </ListItemButton>
+                            </List>
+                        )}
+                        
                     </Collapse>
                 </List>
                     {render === "disciplines" ? 
-                <TestsContainer>
-                        <TestsDisciplinesContent periods={periods}/>
-                </TestsContainer>
-                        :
-                        ''
+                        <TestsContainer >
+                            <TestsDisciplinesContent periods={periods}/>
+                        </TestsContainer>
+                        : render === "teacher" ?
+                        <TestsContainer >
+                            <TeacherTestsTypes teacherId={teacherId} lever={lever}/>
+                        </TestsContainer> 
+                        : ''
                     }
 
             </Container>
