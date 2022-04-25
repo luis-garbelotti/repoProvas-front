@@ -32,3 +32,9 @@ export function getPeriods(token: string) {
 
     return promise;
 }
+
+export function getDisciplinesByPeriod(token: string, periodId: number) {
+    const promise = axios.get(`${BASE_URL}/disciplines/terms/${periodId}`, createConfig(token));
+
+    return promise;
+}
