@@ -26,3 +26,9 @@ export function signIn(body: authData) {
 
     return promise;
 }
+
+export function getPeriods(token: string) {
+    const promise = axios.get(`${BASE_URL}/terms`, createConfig(token));
+
+    return promise;
+}

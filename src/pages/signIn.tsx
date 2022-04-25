@@ -22,7 +22,7 @@ function SignIn() {
 
     useEffect(() => {
         if (auth) {
-            navigate('/disciplines');
+            navigate('/home');
         }
     }, []);
 
@@ -36,7 +36,7 @@ function SignIn() {
         const promise = signIn({ email, password });
         promise.then((response) => {
             login(response.data)
-            navigate('/disciplines');
+            navigate('/home');
             setIsLoading(false);
         }).catch(() => {
             Swal.fire('Email ou senha incorreto(a). Tente novamente');
